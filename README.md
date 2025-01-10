@@ -26,3 +26,5 @@ This repository contains the backend services for the Event Management System, b
 Create your feature branch (git checkout -b feature/AmazingFeature)
 Commit your changes (git commit -m 'Add some AmazingFeature')
 Push to the branch (git push origin feature/AmazingFeature)
+
+![alt text](image.png)

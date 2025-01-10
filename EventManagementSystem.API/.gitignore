@@ -1,0 +1,91 @@
+# Build artifacts
+bin/
+obj/
+**/bin/
+**/obj/
+
+# Visual Studio files
+*.sln.docstates
+*.suo
+*.user
+*.userosscache
+*.sln.cache
+*.log
+*.lock.json
+.vs/
+
+# NuGet Packages
+*.nupkg
+**/packages/
+
+# Node.js stuff
+node_modules/
+package-lock.json
+npm-debug.log
+
+# React / JavaScript related
+build/
+dist/
+
+# IDEs and other tools
+.vscode/
+.idea/
+.DS_Store
+
+# Azure specific
+PublishProfiles/
+
+# Configuration files that shouldn't be committed
+appsettings.Development.json
+
+# Test results
+TestResults/
+
+# Miscellaneous
+*.dbmdl
+*.dbproj.schemaview
+*.jfm
+*.pdb
+*.publish.xml
+*.sqlproj.user
+*._
+*.ipch
+*.pidb
+*.svclog
+*.userprefs
+*.vshost.*
+
+# User-specific files
+*.dotCover
+*.dotSettings
+
+# ReSharper
+_ReSharper.*
+
+# Rider
+.idea/
+
+# JetBrains Rider
+*.sln.iml
+
+# Rider run configurations
+.run/
+
+# Rider NuGet cache
+.nuget/
+
+# Rider caches
+_localhistory/
+.idea_caches/
+
+# Rider build output
+out/
+
+# Rider inspection results
+.idea/inspectionProfiles/
+
+# Rider project files
+.idea/modules.xml
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries/
