@@ -21,13 +21,11 @@ public class UserRepository : IUserRepository
     {
         var userToDelete = await _context.Users.FindAsync(user.UserID);
 
-        if (userToDelete == null)
+        if (userToDelete != null)
         {
-            throw new InvalidOperationException($"User with id {user.UserID} not found.");
+            _context.Users.Remove(userToDelete);
+            await _context.SaveChangesAsync();
         }
-        _context.Users.Remove(userToDelete);
-
-        await _context.SaveChangesAsync();
     }
 
     public Task<User> GetUserByEmail(string email)
