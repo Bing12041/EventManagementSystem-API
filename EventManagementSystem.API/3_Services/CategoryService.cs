@@ -6,9 +6,9 @@ namespace EventManagementSystem.API.Service;
 
 public class CategoryService : ICategoryService
 {
-    private readonly CategoryRepository _categoryRepository;
+    private readonly ICategoryRepository _categoryRepository;
 
-    public CategoryService(CategoryRepository categoryRepository)
+    public CategoryService(ICategoryRepository categoryRepository)
     {
         _categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
     }
