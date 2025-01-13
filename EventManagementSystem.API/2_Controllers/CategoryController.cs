@@ -1,115 +1,133 @@
-using EventManagementSystem.API.DTOs;
-using EventManagementSystem.API.Service;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using EventManagementSystem.API.Service;
+using EventManagementSystem.API.DTOs;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
-namespace EventManagementSystem.API.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class CategoryController : ControllerBase
+namespace EventManagementSystem.API.Controllers
 {
-    private readonly ICategoryService _categoryService;
-
-    public CategoryController(ICategoryService categoryService)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class CategoryController : ControllerBase
     {
-        _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
-    }
+        private readonly ICategoryService _categoryService;
 
-    [HttpGet]
-    public async Task<IActionResult> GetAllCategories()
-    {
-        try
+        public CategoryController(ICategoryService categoryService)
         {
-            var categories = await _categoryService.GetAllCategories();
-            return Ok(categories);
+            _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
         }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"An error occurred while deleting the user: {ex.Message}");
-        }
-    }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetCategory(int id)
-    {
-        try
+        /// <summary>
+        /// Retrieves all categories.
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> GetAllCategories()
         {
-            var category = await _categoryService.GetCategory(id);
-            if (category == null)
+            try
             {
-                return NotFound();
+                var categories = await _categoryService.GetAllCategories();
+                return Ok(categories);
             }
-            return Ok(category);
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving categories: {ex.Message}");
+            }
         }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"An error occurred while deleting the user: {ex.Message}");
-        }
-    }
 
-    [HttpPost]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> CreateCategory([FromBody] CategoryDto categoryDto)
-    {
-        try
+        /// <summary>
+        /// Retrieves a specific category by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the category to retrieve.</param>
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetCategory(int id)
         {
-            var category = await _categoryService.CreateCategory(categoryDto);
-            return CreatedAtAction(nameof(GetCategory), new { id = category.CategoryID }, category);
+            try
+            {
+                var category = await _categoryService.GetCategory(id);
+                if (category == null)
+                {
+                    return NotFound();
+                }
+                return Ok(category);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving the category: {ex.Message}");
+            }
         }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"An error occurred while deleting the user: {ex.Message}");
-        }
-    }
 
-    [HttpPut("{id}")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryDto categoryDto)
-    {
-        try
+        /// <summary>
+        /// Creates a new category.
+        /// </summary>
+        /// <param name="categoryDto">The category data to create.</param>
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreateCategory([FromBody] CategoryDto categoryDto)
         {
-            var updatedCategory = await _categoryService.UpdateCategory(id, categoryDto);
-            return Ok(updatedCategory);
+            try
+            {
+                var category = await _categoryService.CreateCategory(categoryDto);
+                return CreatedAtAction(nameof(GetCategory), new { id = category.CategoryID }, category);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while creating the category: {ex.Message}");
+            }
         }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"An error occurred while deleting the user: {ex.Message}");
-        }
-    }
 
-    [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> DeleteCategory(int id)
-    {
-        try
+        /// <summary>
+        /// Updates an existing category.
+        /// </summary>
+        /// <param name="id">The ID of the category to update.</param>
+        /// <param name="categoryDto">The updated category data.</param>
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryDto categoryDto)
         {
-            await _categoryService.DeleteCategory(id);
-            return NoContent();
+            try
+            {
+                var updatedCategory = await _categoryService.UpdateCategory(id, categoryDto);
+                return Ok(updatedCategory);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while updating the category: {ex.Message}");
+            }
         }
-        catch (ArgumentException ex)
+
+        /// <summary>
+        /// Deletes a specific category by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the category to delete.</param>
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteCategory(int id)
         {
-            return BadRequest(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"An error occurred while deleting the user: {ex.Message}");
+            try
+            {
+                await _categoryService.DeleteCategory(id);
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting the category: {ex.Message}");
+            }
         }
     }
 }
