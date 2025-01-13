@@ -28,9 +28,9 @@ namespace EventManagementSystem.API.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "An error occurred while processing your request.");
+                return StatusCode(500, $"An error occurred while deleting the user: {ex.Message}");
             }
         }
 
@@ -50,9 +50,9 @@ namespace EventManagementSystem.API.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "An error occurred while processing your request.");
+                return StatusCode(500, $"An error occurred while deleting the user: {ex.Message}");
             }
         }
 
@@ -73,9 +73,9 @@ namespace EventManagementSystem.API.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "An error occurred while processing your request.");
+                return StatusCode(500, $"An error occurred while deleting the user: {ex.Message}");
             }
         }
 
@@ -92,14 +92,14 @@ namespace EventManagementSystem.API.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "An error occurred while processing your request.");
+                return StatusCode(500, $"An error occurred while deleting the user: {ex.Message}");
             }
         }
 
         [HttpDelete("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             try
@@ -111,9 +111,9 @@ namespace EventManagementSystem.API.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "An error occurred while processing your request.");
+                return StatusCode(500, $"An error occurred while deleting the user: {ex.Message}");
             }
         }
     }
