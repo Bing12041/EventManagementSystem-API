@@ -23,10 +23,10 @@ namespace EventManagementSystem.API.Tests.Service
             // Arrange
             var locationDto = new LocationDto
             {
-                Address = "123 Test St",
-                City = "Test City",
-                State = "TS",
-                Country = "Test Country"
+                Address = "123 Apple Ave",
+                City = "Bannana City",
+                State = "CY",
+                Country = "Cherry Country"
             };
             var expectedLocation = new Location
             {
@@ -37,11 +37,9 @@ namespace EventManagementSystem.API.Tests.Service
                 Country = locationDto.Country
             };
 
-            // Since AddLocation returns Task, not Task<Location>, we need to setup differently
             _mockRepository.Setup(r => r.AddLocation(It.IsAny<Location>()))
                 .Returns(Task.CompletedTask);
 
-            // If we need to return the added location, we'll have to do it outside the setup
             Location addedLocation = null;
             _mockRepository.Setup(r => r.AddLocation(It.IsAny<Location>()))
                 .Callback<Location>(l => addedLocation = l);
@@ -104,10 +102,10 @@ namespace EventManagementSystem.API.Tests.Service
             var locationId = 1;
             var locationDto = new LocationDto
             {
-                Address = "New Address",
-                City = "New City",
-                State = "NC",
-                Country = "New Country"
+                Address = "123 Apple Ave",
+                City = "Bannana City",
+                State = "CY",
+                Country = "Cherry Country"
             };
 
             var existingLocation = new Location { LocationID = locationId, Address = "Old Address" };
