@@ -1,21 +1,33 @@
+using System.Text;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using EventManagementSystem.API.Data;
 using EventManagementSystem.API.Repository;
 using EventManagementSystem.API.Service;
-// using Microsoft.AspNetCore.Authentication.JwtBearer; // Commented out for authentication
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-// using Microsoft.IdentityModel.Tokens; // Commented out for authentication
-// using Azure.Identity; // Commented out for authentication
-using System.Text;
-using Microsoft.Extensions.Configuration;
-// using Microsoft.Extensions.Configuration.AzureKeyVault; // Commented out for authentication
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
+var keyVaultUri = "https://eventdbkeyvault.vault.azure.net/";
 
-// Azure Key Vault configuration (commented out for authentication)
-// var keyVaultUrl = "https://eventmanagementsystem.vault.azure.net/";
-// builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
+var secretClient = new SecretClient(new Uri(keyVaultUri), new DefaultAzureCredential());
 
-// Add services to the container.
+string jwtSecret;
+try
+{
+    var secret = await secretClient.GetSecretAsync("jwt-secret");
+    jwtSecret = secret.Value.Value;
+}
+catch (Exception ex)
+{
+    // Log the exception or handle it appropriately
+    Console.WriteLine($"Error accessing Azure Key Vault: {ex.Message}");
+    // For demonstration, we'll throw an exception here to halt startup if secret retrieval fails
+    throw;
+}
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -39,34 +51,46 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IRSVPService, RSVPService>();
 
-// Configure Authentication with JWT (commented out for authentication)
-/*
-builder.Services.AddAuthentication(options =>
+// Adding Cors to allow front end
+builder.Services.AddCors(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]))
-    };
+    options.AddPolicy(
+        "AllowAll",
+        policy =>
+        {
+            policy
+                .WithOrigins(
+                    "http://localhost:5180",
+                    "https://black-hill-029ace20f.4.azurestaticapps.net/"
+                ) // specify your React dev origin
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials(); // allow credentials
+        }
+    );
 });
-*/
 
-// Add authorization policies (commented out for authentication)
-/*
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
-});
-*/
+// Add Service for Jwt Bearer Auth
+builder
+    .Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                ValidAudience = builder.Configuration["Jwt:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+            };
+    });
 
 var app = builder.Build();
 
@@ -77,12 +101,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// app.UseHttpsRedirection();
-
-// Authentication and Authorization middleware (commented out for authentication)
-// app.UseAuthentication();
-// app.UseAuthorization();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseCors("AllowAll");
+app.UseHttpsRedirection();
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();
