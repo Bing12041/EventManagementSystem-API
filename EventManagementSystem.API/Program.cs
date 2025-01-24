@@ -1,20 +1,19 @@
 using EventManagementSystem.API.Data;
 using EventManagementSystem.API.Repository;
 using EventManagementSystem.API.Service;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+// using Microsoft.AspNetCore.Authentication.JwtBearer; // Commented out for authentication
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using Azure.Identity;
+// using Microsoft.IdentityModel.Tokens; // Commented out for authentication
+// using Azure.Identity; // Commented out for authentication
 using System.Text;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.AzureKeyVault;
-
-// Azure Key Vault configuration
-var keyVaultUrl = "https://eventmanagementsystem.vault.azure.net/";
+// using Microsoft.Extensions.Configuration.AzureKeyVault; // Commented out for authentication
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
+// Azure Key Vault configuration (commented out for authentication)
+// var keyVaultUrl = "https://eventmanagementsystem.vault.azure.net/";
+// builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
 
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
@@ -40,7 +39,8 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IRSVPService, RSVPService>();
 
-// Configure Authentication with JWT
+// Configure Authentication with JWT (commented out for authentication)
+/*
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -58,12 +58,15 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]))
     };
 });
+*/
 
-// Add authorization policies
+// Add authorization policies (commented out for authentication)
+/*
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
 });
+*/
 
 var app = builder.Build();
 
@@ -74,10 +77,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
-app.UseAuthentication();
-app.UseAuthorization();
+// Authentication and Authorization middleware (commented out for authentication)
+// app.UseAuthentication();
+// app.UseAuthorization();
 
 app.MapControllers();
 
