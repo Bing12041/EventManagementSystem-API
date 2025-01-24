@@ -21,7 +21,7 @@ namespace EventManagementSystem.API.Controllers
         /// </summary>
         /// <param name="locationDto">The location data to create.</param>
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> CreateLocation([FromBody] LocationDto locationDto)
         {
             try
@@ -71,7 +71,7 @@ namespace EventManagementSystem.API.Controllers
         /// <param name="id">The ID of the location to update.</param>
         /// <param name="locationDto">The updated location data.</param>
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> UpdateLocation(int id, [FromBody] LocationDto locationDto)
         {
             try
@@ -94,7 +94,7 @@ namespace EventManagementSystem.API.Controllers
         /// </summary>
         /// <param name="id">The ID of the location to delete.</param>
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> DeleteLocation(int id)
         {
             try

@@ -121,7 +121,7 @@ namespace EventManagementSystem.API.Controllers
         /// </summary>
         /// <param name="id">ID of the user to delete.</param>
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> DeleteUser(int id)
         {
             try

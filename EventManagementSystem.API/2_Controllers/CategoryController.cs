@@ -65,7 +65,7 @@ namespace EventManagementSystem.API.Controllers
         /// </summary>
         /// <param name="categoryDto">The category data to create.</param>
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> CreateCategory([FromBody] CategoryDto categoryDto)
         {
             try
@@ -89,7 +89,7 @@ namespace EventManagementSystem.API.Controllers
         /// <param name="id">The ID of the category to update.</param>
         /// <param name="categoryDto">The updated category data.</param>
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryDto categoryDto)
         {
             try
@@ -112,7 +112,7 @@ namespace EventManagementSystem.API.Controllers
         /// </summary>
         /// <param name="id">The ID of the category to delete.</param>
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             try
