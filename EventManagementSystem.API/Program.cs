@@ -61,7 +61,7 @@ builder.Services.AddCors(options =>
             policy
                 .WithOrigins(
                     "http://localhost:5180",
-                    "https://black-hill-029ace20f.4.azurestaticapps.net/"
+                    "https://delightful-mud-0f52c600f.4.azurestaticapps.net/"
                 ) // specify your React dev origin
                 .AllowAnyHeader()
                 .AllowAnyMethod()
