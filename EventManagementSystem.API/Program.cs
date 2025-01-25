@@ -7,6 +7,7 @@ using EventManagementSystem.API.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -22,19 +23,28 @@ try
 }
 catch (Exception ex)
 {
-    // Log the exception or handle it appropriately
     Console.WriteLine($"Error accessing Azure Key Vault: {ex.Message}");
-    // For demonstration, we'll throw an exception here to halt startup if secret retrieval fails
-    throw;
+    if (builder.Environment.IsDevelopment())
+    {
+        jwtSecret = configuration["Jwt:Secret"] ?? "ThisIsNotSecure-UseForDevelopmentOnly"; // Use a non-sensitive placeholder or from config
+    }
+    else
+    {
+        throw new Exception("Failed to retrieve JWT secret from Azure Key Vault", ex);
+    }
 }
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<EventDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("EventDB")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("EventDB"), 
+                         sqlServerOptions => sqlServerOptions.EnableRetryOnFailure(
+                             maxRetryCount: 5, 
+                             maxRetryDelay: TimeSpan.FromSeconds(30), 
+                             errorNumbersToAdd: null)));
 
-builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler =
+builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = 
     System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
 
 // Repositories
@@ -51,7 +61,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IRSVPService, RSVPService>();
 
-// Adding Cors to allow front end
+// Adding CORS to allow frontend
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(
@@ -62,15 +72,15 @@ builder.Services.AddCors(options =>
                 .WithOrigins(
                     "http://localhost:5180",
                     "https://delightful-mud-0f52c600f.4.azurestaticapps.net/"
-                ) // specify your React dev origin
+                )
                 .AllowAnyHeader()
                 .AllowAnyMethod()
-                .AllowCredentials(); // allow credentials
+                .AllowCredentials();
         }
     );
 });
 
-// Add Service for Jwt Bearer Auth
+// Add Service for JWT Bearer Auth
 builder
     .Services.AddAuthentication(options =>
     {
@@ -86,8 +96,8 @@ builder
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                ValidAudience = builder.Configuration["Jwt:Audience"],
+                ValidIssuer = configuration["Jwt:Issuer"],
+                ValidAudience = configuration["Jwt:Audience"],
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
             };
     });

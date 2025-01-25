@@ -23,10 +23,11 @@ public class UserService : IUserService
 
         if (user == null || !VerifyPasswordHash(password, user.PasswordHash))
         {
-            throw new ArgumentException($"Invalid email or password");
+            throw new ArgumentException("Invalid email or password");
         }
 
-        return "Success";
+        // You should generate and return a JWT token here, not just "Success".
+        return "Success"; // TODO: Replace with token generation
     }
 
     public async Task<User> CreateUser(UserRegistrationDto userDto)
@@ -35,7 +36,7 @@ public class UserService : IUserService
 
         if (existingUser != null)
         {
-            throw new ArgumentException($"User with email {userDto.Email} already exist.");
+            throw new ArgumentException($"User with email {userDto.Email} already exists.");
         }
 
         var passwordHash = HashPassword(userDto.Password);
@@ -63,9 +64,9 @@ public class UserService : IUserService
         await _userRepository.DeleteUser(user);
     }
 
-    public Task<User> GetUser(int userId)
+    public async Task<User> GetUser(int userId)
     {
-        var user = _userRepository.GetUserById(userId);
+        var user = await _userRepository.GetUserById(userId);
 
         if (user == null)
         {
@@ -118,9 +119,9 @@ public class UserService : IUserService
         }
     }
 
-    private bool VerifyPasswordHash(string passowrd, string storedHash)
+    private bool VerifyPasswordHash(string password, string storedHash)
     {
-        var hashOfInput = HashPassword(passowrd);
+        var hashOfInput = HashPassword(password);
 
         return string.Equals(hashOfInput, storedHash, StringComparison.OrdinalIgnoreCase);
     }

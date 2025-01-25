@@ -1,4 +1,7 @@
 using EventManagementSystem.API.Data;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace EventManagementSystem.API.Repository;
 
@@ -10,27 +13,44 @@ public class UserRepository : IUserRepository
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }
+
     public async Task<User> AddUser(User user)
     {
-        var useradded = await _context.Users.AddAsync(user);
-        await _context.SaveChangesAsync();
-        return useradded.Entity;
+        try
+        {
+            var userAdded = await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
+            return userAdded.Entity;
+        }
+        catch (DbUpdateException ex)
+        {
+            Console.WriteLine($"Database update error: {ex.Message}");
+            throw;
+        }
     }
 
     public async Task DeleteUser(User user)
     {
-        var userToDelete = await _context.Users.FindAsync(user.UserID);
-
-        if (userToDelete != null)
+        try
         {
-            _context.Users.Remove(userToDelete);
-            await _context.SaveChangesAsync();
+            var userToDelete = await _context.Users.FindAsync(user.UserID);
+            if (userToDelete != null)
+            {
+                _context.Users.Remove(userToDelete);
+                await _context.SaveChangesAsync();
+            }
+        }
+        catch (DbUpdateException ex)
+        {
+            Console.WriteLine($"Database delete error: {ex.Message}");
+            throw;
         }
     }
 
-    public Task<User> GetUserByEmail(string email)
+    public async Task<User> GetUserByEmail(string email)
     {
-        throw new NotImplementedException();
+        return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        // Don't throw an exception if no user is found, just return null.
     }
 
     public async Task<User> GetUserById(int userId)
@@ -47,8 +67,16 @@ public class UserRepository : IUserRepository
 
     public async Task<User> UpdateUser(User user)
     {
-        _context.Users.Update(user);
-        await _context.SaveChangesAsync();
-        return user;
+        try
+        {
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+            return user;
+        }
+        catch (DbUpdateException ex)
+        {
+            Console.WriteLine($"Database update error: {ex.Message}");
+            throw;
+        }
     }
 }
