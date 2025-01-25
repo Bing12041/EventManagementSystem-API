@@ -1,8 +1,13 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using System.Text;
 using EventManagementSystem.API.Data;
 using EventManagementSystem.API.DTOs;
 using EventManagementSystem.API.Repository;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Configuration; // Added for IConfiguration
+using System.Security.Claims;
+using System;
 
 namespace EventManagementSystem.API.Service;
 
@@ -26,8 +31,33 @@ public class UserService : IUserService
             throw new ArgumentException("Invalid email or password");
         }
 
-        // You should generate and return a JWT token here, not just "Success".
-        return "Success"; // TODO: Replace with token generation
+        // Generate JWT token
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var jwtSecret = _configuration["Jwt:Secret"];
+        
+        if (string.IsNullOrEmpty(jwtSecret))
+        {
+            throw new InvalidOperationException("JWT secret is not configured.");
+        }
+
+        var key = Encoding.ASCII.GetBytes(jwtSecret);
+
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new Claim[] 
+            {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString())
+            }),
+            Expires = DateTime.UtcNow.AddHours(1),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
+
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        var tokenString = tokenHandler.WriteToken(token);
+
+        return tokenString;
     }
 
     public async Task<User> CreateUser(UserRegistrationDto userDto)

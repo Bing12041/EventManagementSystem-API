@@ -7,7 +7,6 @@ using EventManagementSystem.API.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -20,13 +19,15 @@ try
 {
     var secret = await secretClient.GetSecretAsync("jwt-secret");
     jwtSecret = secret.Value.Value;
+    configuration["Jwt:Secret"] = jwtSecret; // Set it in configuration for use in UserService
 }
 catch (Exception ex)
 {
     Console.WriteLine($"Error accessing Azure Key Vault: {ex.Message}");
     if (builder.Environment.IsDevelopment())
     {
-        jwtSecret = configuration["Jwt:Secret"] ?? "ThisIsNotSecure-UseForDevelopmentOnly"; // Use a non-sensitive placeholder or from config
+        jwtSecret = configuration["Jwt:Secret"] ?? "ThisIsNotSecure-UseForDevelopmentOnly";
+        Console.WriteLine($"Using fallback JWT secret: {jwtSecret.Substring(0, Math.Min(jwtSecret.Length, 10))}...");
     }
     else
     {
@@ -34,17 +35,18 @@ catch (Exception ex)
     }
 }
 
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<EventDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("EventDB"), 
-                         sqlServerOptions => sqlServerOptions.EnableRetryOnFailure(
-                             maxRetryCount: 5, 
-                             maxRetryDelay: TimeSpan.FromSeconds(30), 
-                             errorNumbersToAdd: null)));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("EventDB"),
+                        sqlServerOptions => sqlServerOptions.EnableRetryOnFailure(
+                            maxRetryCount: 5,
+                            maxRetryDelay: TimeSpan.FromSeconds(30),
+                            errorNumbersToAdd: null)));
 
-builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = 
+builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler =
     System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
 
 // Repositories
@@ -89,17 +91,16 @@ builder
     })
     .AddJwtBearer(options =>
     {
-        options.TokenValidationParameters =
-            new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = configuration["Jwt:Issuer"],
-                ValidAudience = configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
-            };
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = configuration["Jwt:Issuer"],
+            ValidAudience = configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+        };
     });
 
 var app = builder.Build();

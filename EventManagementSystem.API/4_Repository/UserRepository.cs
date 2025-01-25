@@ -50,7 +50,6 @@ public class UserRepository : IUserRepository
     public async Task<User> GetUserByEmail(string email)
     {
         return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-        // Don't throw an exception if no user is found, just return null.
     }
 
     public async Task<User> GetUserById(int userId)
