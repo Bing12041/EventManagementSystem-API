@@ -22,7 +22,7 @@ public class UserService : IUserService
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
 
-    public async Task<string> AuthenticateUser(string email, string password)
+    public async Task<(string Token, User User)> AuthenticateUser(string email, string password)
     {
         var user = await _userRepository.GetUserByEmail(email);
 
@@ -34,7 +34,7 @@ public class UserService : IUserService
         // Generate JWT token
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtSecret = _configuration["Jwt:Secret"];
-        
+
         if (string.IsNullOrEmpty(jwtSecret))
         {
             throw new InvalidOperationException("JWT secret is not configured.");
@@ -44,11 +44,11 @@ public class UserService : IUserService
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new Claim[] 
+            Subject = new ClaimsIdentity(new Claim[]
             {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString())
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString())
             }),
             Expires = DateTime.UtcNow.AddHours(1),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -57,7 +57,7 @@ public class UserService : IUserService
         var token = tokenHandler.CreateToken(tokenDescriptor);
         var tokenString = tokenHandler.WriteToken(token);
 
-        return tokenString;
+        return (tokenString, user);
     }
 
     public async Task<User> CreateUser(UserRegistrationDto userDto)
@@ -101,6 +101,23 @@ public class UserService : IUserService
         if (user == null)
         {
             throw new ArgumentException($"User with id {userId} does not exist.");
+        }
+
+        return user;
+    }
+
+    public async Task<User> GetUserByEmail(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            throw new ArgumentException("Email cannot be null or empty", nameof(email));
+        }
+
+        var user = await _userRepository.GetUserByEmail(email);
+
+        if (user == null)
+        {
+            throw new ArgumentException($"User with email {email} does not exist.");
         }
 
         return user;

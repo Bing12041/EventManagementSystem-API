@@ -40,7 +40,7 @@ namespace EventManagementSystem.API.Controllers
         }
 
         /// <summary>
-        /// Authenticates a user and returns a JWT token.
+        /// Authenticates a user and returns a JWT token along with user details.
         /// </summary>
         /// <param name="loginDto">User login data.</param>
         [HttpPost("login")]
@@ -48,12 +48,14 @@ namespace EventManagementSystem.API.Controllers
         {
             try
             {
-                var token = await _userService.AuthenticateUser(loginDto.Email, loginDto.Password);
+                var (token, user) = await _userService.AuthenticateUser(loginDto.Email, loginDto.Password);
                 if (string.IsNullOrEmpty(token))
                 {
                     return Unauthorized("Invalid email or password.");
                 }
-                return Ok(new { Token = token });
+
+                // Return both token and user details
+                return Ok(new { Token = token, User = new { user.UserID, user.Username, user.Email } });
             }
             catch (ArgumentException ex)
             {
@@ -64,6 +66,7 @@ namespace EventManagementSystem.API.Controllers
                 return StatusCode(500, $"An error occurred during login: {ex.Message}");
             }
         }
+
 
         /// <summary>
         /// Retrieves user details by ID.
