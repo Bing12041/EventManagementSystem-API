@@ -9,4 +9,5 @@ public interface ILocationService
     Task<Location> GetLocation(int locationId);
     Task<Location> UpdateLocation(int locationId, LocationDto locationDto);
     Task DeleteLocation(int locationId);
+    Task<IEnumerable<Location>> GetAllLocations();
 }

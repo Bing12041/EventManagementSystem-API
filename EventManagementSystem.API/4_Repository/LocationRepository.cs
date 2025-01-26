@@ -1,4 +1,5 @@
 using EventManagementSystem.API.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace EventManagementSystem.API.Repository;
 
@@ -45,5 +46,10 @@ public class LocationRepository : ILocationRepository
     {
         _context.Locations.Update(location);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<Location>> GetAllLocations()
+    {
+        return await _context.Locations.ToListAsync();
     }
 }

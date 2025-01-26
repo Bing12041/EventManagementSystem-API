@@ -68,4 +68,9 @@ public class LocationService : ILocationService
         await _locationRepository.UpdateLocation(location);
         return location;
     }
+
+    public async Task<IEnumerable<Location>> GetAllLocations()
+    {
+        return await _locationRepository.GetAllLocations();
+    }
 }

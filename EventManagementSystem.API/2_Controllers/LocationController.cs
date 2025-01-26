@@ -111,5 +111,19 @@ namespace EventManagementSystem.API.Controllers
                 return StatusCode(500, $"An error occurred while deleting the location: {ex.Message}");
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllLocations()
+        {
+            try
+            {
+                var locations = await _locationService.GetAllLocations();
+                return Ok(locations);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving locations: {ex.Message}");
+            }
+        }
     }
 }
