@@ -21,7 +21,6 @@ namespace EventManagementSystem.API.Controllers
         /// </summary>
         /// <param name="eventDto">The event data to create.</param>
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> CreateEvent([FromBody] EventDto eventDto)
         {
             try
@@ -88,7 +87,6 @@ namespace EventManagementSystem.API.Controllers
         /// <param name="id">The ID of the event to update.</param>
         /// <param name="eventDto">The updated event data.</param>
         [HttpPut("{id}")]
-        [Authorize]
         public async Task<IActionResult> UpdateEvent(int id, [FromBody] EventDto eventDto)
         {
             try
@@ -111,7 +109,6 @@ namespace EventManagementSystem.API.Controllers
         /// </summary>
         /// <param name="id">The ID of the event to delete.</param>
         [HttpDelete("{id}")]
-        [Authorize]
         public async Task<IActionResult> DeleteEvent(int id)
         {
             try

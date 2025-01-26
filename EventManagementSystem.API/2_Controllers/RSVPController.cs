@@ -21,7 +21,6 @@ namespace EventManagementSystem.API.Controllers
         /// </summary>
         /// <param name="rsvpRequest">The RSVP request data.</param>
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> RSVPToEvent([FromBody] RSVPRequestDto rsvpRequest)
         {
             try
@@ -66,7 +65,6 @@ namespace EventManagementSystem.API.Controllers
         /// </summary>
         /// <param name="userId">The ID of the user to get RSVPs for.</param>
         [HttpGet("user/{userId}")]
-        [Authorize]
         public async Task<IActionResult> GetRSVPsForUser(int userId)
         {
             try
@@ -91,7 +89,6 @@ namespace EventManagementSystem.API.Controllers
         /// <param name="eventId">The ID of the event the RSVP is for.</param>
         /// <param name="newStatus">The new status of the RSVP.</param>
         [HttpPut("{userId}/{eventId}")]
-        [Authorize]
         public async Task<IActionResult> UpdateRSVP(int userId, int eventId, [FromBody] string newStatus)
         {
             try
@@ -115,7 +112,6 @@ namespace EventManagementSystem.API.Controllers
         /// <param name="userId">The ID of the user who made the RSVP.</param>
         /// <param name="eventId">The ID of the event the RSVP is for.</param>
         [HttpDelete("{userId}/{eventId}")]
-        [Authorize]
         public async Task<IActionResult> CancelRSVP(int userId, int eventId)
         {
             try
@@ -139,7 +135,6 @@ namespace EventManagementSystem.API.Controllers
         /// <param name="userId">The ID of the user.</param>
         /// <param name="eventId">The ID of the event.</param>
         [HttpGet("user/{userId}/event/{eventId}")]
-        [Authorize]
         public async Task<IActionResult> GetRSVPForUserAndEvent(int userId, int eventId)
         {
             try

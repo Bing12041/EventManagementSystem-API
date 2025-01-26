@@ -22,20 +22,10 @@ namespace EventManagementSystem.API.Controllers
         /// </summary>
         /// <param name="locationDto">The location data to create.</param>
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> CreateLocation([FromBody] LocationDto locationDto)
         {
             try
             {
-                var identity = HttpContext.User.Identity as ClaimsIdentity;
-                if (identity != null)
-                {
-                    Console.WriteLine($"User claims: {string.Join(", ", identity.Claims.Select(c => $"{c.Type}:{c.Value}"))}");
-                }
-                else
-                {
-                    Console.WriteLine("No user identity found in the HttpContext.");
-                }
                 var location = await _locationService.CreateLocation(locationDto);
                 return CreatedAtAction(nameof(GetLocation), new { id = location.LocationID }, location);
             }
@@ -81,7 +71,6 @@ namespace EventManagementSystem.API.Controllers
         /// <param name="id">The ID of the location to update.</param>
         /// <param name="locationDto">The updated location data.</param>
         [HttpPut("{id}")]
-        [Authorize]
         public async Task<IActionResult> UpdateLocation(int id, [FromBody] LocationDto locationDto)
         {
             try
@@ -104,7 +93,6 @@ namespace EventManagementSystem.API.Controllers
         /// </summary>
         /// <param name="id">The ID of the location to delete.</param>
         [HttpDelete("{id}")]
-        [Authorize]
         public async Task<IActionResult> DeleteLocation(int id)
         {
             try
