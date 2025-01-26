@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using EventManagementSystem.API.Service;
 using EventManagementSystem.API.DTOs;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace EventManagementSystem.API.Controllers
 {
@@ -26,6 +27,15 @@ namespace EventManagementSystem.API.Controllers
         {
             try
             {
+                var identity = HttpContext.User.Identity as ClaimsIdentity;
+                if (identity != null)
+                {
+                    Console.WriteLine($"User claims: {string.Join(", ", identity.Claims.Select(c => $"{c.Type}:{c.Value}"))}");
+                }
+                else
+                {
+                    Console.WriteLine("No user identity found in the HttpContext.");
+                }
                 var location = await _locationService.CreateLocation(locationDto);
                 return CreatedAtAction(nameof(GetLocation), new { id = location.LocationID }, location);
             }
